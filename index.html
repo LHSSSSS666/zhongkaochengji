@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>河北邢台中考查分倒计时</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0c0c1d 0%, #1a1a3e 30%, #2d1b69 60%, #1a1a3e 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        #particles-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+        
+        .container {
+            text-align: center;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .title-wrapper {
+            margin-bottom: 30px;
+            animation: slideDown 1s ease-out;
+        }
+        
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, #ff6b6b, #ffd166, #06d6a0, #118ab2, #ff6b6b);
+            background-size: 200% auto;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: shine 3s linear infinite;
+            text-shadow: none;
+            filter: drop-shadow(0 0 30px rgba(255, 107, 107, 0.3));
+        }
+        
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+        
+        .subtitle {
+            font-size: 1.3rem;
+            color: #8ecae6;
+            margin-bottom: 50px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.3s forwards;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .target-date {
+            font-size: 1.6rem;
+            color: #ffd166;
+            margin-bottom: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 0.5s forwards;
+            text-shadow: 0 0 20px rgba(255, 209, 102, 0.5);
+        }
+        
+        .countdown {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 50px;
+        }
+        
+        .countdown-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px 20px;
+            min-width: 140px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        .countdown-item::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.1) 0%, transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .countdown-item:hover::before {
+            opacity: 1;
+        }
+        
+        .countdown-item:hover {
+            transform: translateY(-10px) scale(1.05);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.3),
+                0 0 30px rgba(255, 107, 107, 0.2),
+                inset 0 0 30px rgba(255, 255, 255, 0.05);
+        }
+        
+        .countdown-item:nth-child(1) { animation: fadeInUp 0.8s ease-out 0.6s forwards; }
+        .countdown-item:nth-child(2) { animation: fadeInUp 0.8s ease-out 0.8s forwards; }
+        .countdown-item:nth-child(3) { animation: fadeInUp 0.8s ease-out 1.0s forwards; }
+        .countdown-item:nth-child(4) { animation: fadeInUp 0.8s ease-out 1.2s forwards; }
+        
+        .number {
+            font-size: 4rem;
+            font-weight: bold;
+            color: #ff6b6b;
+            display: block;
+            line-height: 1;
+            margin-bottom: 15px;
+            font-variant-numeric: tabular-nums;
+            position: relative;
+            text-shadow: 0 0 20px rgba(255, 107, 107, 0.5);
+        }
+        
+        .label {
+            font-size: 1.1rem;
+            color: #8ecae6;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            position: relative;
+        }
+        
+        .message {
+            font-size: 1.4rem;
+            color: #a8dadc;
+            margin-top: 30px;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.5s forwards;
+            min-height: 2.5rem;
+        }
+        
+        .footer {
+            margin-top: 60px;
+            font-size: 1rem;
+            color: #6c757d;
+            opacity: 0;
+            animation: fadeInUp 1s ease-out 1.8s forwards;
+        }
+        
+        .glow-orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.3;
+            pointer-events: none;
+            z-index: 1;
+        }
+        
+        .glow-orb-1 {
+            width: 300px;
+            height: 300px;
+            background: #ff6b6b;
+            top: 10%;
+            left: 10%;
+            animation: floatOrb 8s ease-in-out infinite;
+        }
+        
+        .glow-orb-2 {
+            width: 250px;
+            height: 250px;
+            background: #118ab2;
+            bottom: 15%;
+            right: 10%;
+            animation: floatOrb 10s ease-in-out infinite reverse;
+        }
+        
+        .glow-orb-3 {
+            width: 200px;
+            height: 200px;
+            background: #ffd166;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: floatOrb 12s ease-in-out infinite;
+        }
+        
+        @keyframes floatOrb {
+            0%, 100% { transform: translate(0, 0); }
+            25% { transform: translate(50px, -50px); }
+            50% { transform: translate(-30px, 30px); }
+            75% { transform: translate(40px, 20px); }
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        
+        .animate-number {
+            animation: numberFlip 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        @keyframes numberFlip {
+            0% { transform: scale(1) rotateX(0); opacity: 1; }
+            50% { transform: scale(1.2) rotateX(90deg); opacity: 0.5; }
+            100% { transform: scale(1) rotateX(0); opacity: 1; }
+        }
+        
+        .completed {
+            color: #06d6a0;
+            font-size: 2.5rem;
+            margin-top: 40px;
+            animation: celebrate 1s ease-in;
+            text-shadow: 0 0 30px rgba(6, 214, 160, 0.5);
+        }
+        
+        @keyframes celebrate {
+            0% { opacity: 0; transform: scale(0.5) rotate(-10deg); }
+            50% { transform: scale(1.2) rotate(5deg); }
+            100% { opacity: 1; transform: scale(1) rotate(0); }
+        }
+        
+        .sparkle {
+            position: fixed;
+            width: 4px;
+            height: 4px;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 5;
+            animation: sparkleAnim 1.5s ease-out forwards;
+        }
+        
+        @keyframes sparkleAnim {
+            0% { transform: scale(0); opacity: 1; }
+            50% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .countdown {
+                gap: 15px;
+            }
+            
+            .countdown-item {
+                min-width: 100px;
+                padding: 20px 15px;
+            }
+            
+            .number {
+                font-size: 2.8rem;
+            }
+            
+            .label {
+                font-size: 0.9rem;
+                letter-spacing: 2px;
+            }
+            
+            .target-date {
+                font-size: 1.2rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .countdown-item {
+                min-width: 70px;
+                padding: 15px 10px;
+            }
+            
+            .number {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="particles-canvas"></canvas>
+    
+    <div class="glow-orb glow-orb-1"></div>
+    <div class="glow-orb glow-orb-2"></div>
+    <div class="glow-orb glow-orb-3"></div>
+    
+    <div class="container">
+        <div class="title-wrapper">
+            <h1>河北邢台中考查分倒计时</h1>
+        </div>
+        
+        <div class="target-date">目标时间：2026年7月2日 24:00</div>
+        <div class="subtitle">距离成绩查询还有</div>
+        
+        <div class="countdown" id="countdown">
+            <div class="countdown-item">
+                <span class="number" id="days">00</span>
+                <span class="label">天</span>
+            </div>
+            <div class="countdown-item">
+                <span class="number" id="hours">00</span>
+                <span class="label">小时</span>
+            </div>
+            <div class="countdown-item">
+                <span class="number" id="minutes">00</span>
+                <span class="label">分钟</span>
+            </div>
+            <div class="countdown-item">
+                <span class="number" id="seconds">00</span>
+                <span class="label">秒</span>
+            </div>
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="footer">
+            <p>祝所有考生取得理想成绩！</p>
+        </div>
+    </div>
+
+    <script>
+        // 粒子系统
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particles = [];
+        let animationId;
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        class Particle {
+            constructor() {
+                this.reset();
+            }
+            
+            reset() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 3 + 1;
+                this.speedX = (Math.random() - 0.5) * 0.5;
+                this.speedY = (Math.random() - 0.5) * 0.5;
+                this.opacity = Math.random() * 0.5 + 0.1;
+                this.life = Math.random() * 200 + 100;
+                this.maxLife = this.life;
+            }
+            
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+                this.life--;
+                
+                if (this.life <= 0 || this.x < 0 || this.x > canvas.width || this.y < 0 || this.y > canvas.height) {
+                    this.reset();
+                }
+            }
+            
+            draw() {
+                const fadeRatio = this.life / this.maxLife;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity * fadeRatio})`;
+                ctx.fill();
+            }
+        }
+        
+        function initParticles() {
+            particles = [];
+            const particleCount = Math.min(100, Math.floor(canvas.width * canvas.height / 10000));
+            for (let i = 0; i < particleCount; i++) {
+                particles.push(new Particle());
+            }
+        }
+        
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            
+            // 连接近距离的粒子
+            for (let i = 0; i < particles.length; i++) {
+                for (let j = i + 1; j < particles.length; j++) {
+                    const dx = particles[i].x - particles[j].x;
+                    const dy = particles[i].y - particles[j].y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+                    
+                    if (distance < 100) {
+                        const opacity = (1 - distance / 100) * 0.2;
+                        ctx.beginPath();
+                        ctx.strokeStyle = `rgba(255, 255, 255, ${opacity})`;
+                        ctx.lineWidth = 0.5;
+                        ctx.moveTo(particles[i].x, particles[i].y);
+                        ctx.lineTo(particles[j].x, particles[j].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+            
+            animationId = requestAnimationFrame(animateParticles);
+        }
+        
+        // 创建闪烁星星效果
+        function createSparkle(x, y) {
+            const sparkle = document.createElement('div');
+            sparkle.className = 'sparkle';
+            sparkle.style.left = x + 'px';
+            sparkle.style.top = y + 'px';
+            document.body.appendChild(sparkle);
+            
+            setTimeout(() => sparkle.remove(), 1500);
+        }
+        
+        // 鼠标移动时创建星星
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.9) {
+                createSparkle(e.clientX, e.clientY);
+            }
+        });
+        
+        // 倒计时逻辑
+        const targetDate = new Date('2026-07-03T00:00:00+08:00');
+        
+        function updateCountdown() {
+            const now = new Date();
+            const diff = targetDate - now;
+            
+            if (diff <= 0) {
+                document.getElementById('countdown').innerHTML = `
+                    <div class="completed">
+                        <p>🎉 成绩查询已开放！</p>
+                        <p>祝你取得优异成绩！</p>
+                    </div>
+                `;
+                document.getElementById('message').textContent = '加油！你的努力终将得到回报！';
+                
+                // 庆祝效果
+                for (let i = 0; i < 50; i++) {
+                    setTimeout(() => {
+                        createSparkle(
+                            Math.random() * window.innerWidth,
+                            Math.random() * window.innerHeight
+                        );
+                    }, i * 50);
+                }
+                return;
+            }
+            
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+            
+            const daysElement = document.getElementById('days');
+            const hoursElement = document.getElementById('hours');
+            const minutesElement = document.getElementById('minutes');
+            const secondsElement = document.getElementById('seconds');
+            
+            const newDays = String(days).padStart(2, '0');
+            const newHours = String(hours).padStart(2, '0');
+            const newMinutes = String(minutes).padStart(2, '0');
+            const newSeconds = String(seconds).padStart(2, '0');
+            
+            if (daysElement.textContent !== newDays) {
+                daysElement.textContent = newDays;
+                daysElement.classList.remove('animate-number');
+                void daysElement.offsetWidth;
+                daysElement.classList.add('animate-number');
+            }
+            
+            if (hoursElement.textContent !== newHours) {
+                hoursElement.textContent = newHours;
+                hoursElement.classList.remove('animate-number');
+                void hoursElement.offsetWidth;
+                hoursElement.classList.add('animate-number');
+            }
+            
+            if (minutesElement.textContent !== newMinutes) {
+                minutesElement.textContent = newMinutes;
+                minutesElement.classList.remove('animate-number');
+                void minutesElement.offsetWidth;
+                minutesElement.classList.add('animate-number');
+            }
+            
+            if (secondsElement.textContent !== newSeconds) {
+                secondsElement.textContent = newSeconds;
+                secondsElement.classList.remove('animate-number');
+                void secondsElement.offsetWidth;
+                secondsElement.classList.add('animate-number');
+            }
+            
+            if (days === 0) {
+                document.getElementById('message').textContent = '就在今天！保持冷静，你一定可以的！';
+            } else if (days === 1) {
+                document.getElementById('message').textContent = '明天就是查分日了，准备好了吗？';
+            } else {
+                document.getElementById('message').textContent = '坚持就是胜利，你的努力不会白费！';
+            }
+        }
+        
+        // 初始化
+        window.addEventListener('load', () => {
+            resizeCanvas();
+            initParticles();
+            animateParticles();
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        });
+        
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+    </script>
+</body>
+</html>
